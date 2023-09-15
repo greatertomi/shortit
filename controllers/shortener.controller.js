@@ -1,8 +1,11 @@
-const ShortenedURL = require("./../models/shortener.model");
-const nanoid = require("nanoid");
-const { check } = require("express-validator");
+// const ShortenedURL = require("./../models/shortener.model");
+// const nanoid = require("nanoid");
+// const { check } = require("express-validator");
 
 exports.createUrls = async (req, res) => {
+  return res.status(200).json({
+    message: 'Url shortened successfully'
+  });
   /*//to validate url
   const validateURL = check("url")
     .notEmpty()
