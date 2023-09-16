@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const shortenedURLSchema = new mongoose.Schema({
   customName: {
     type: String,
@@ -23,7 +24,8 @@ const shortenedURLSchema = new mongoose.Schema({
 const ShortenedURL = mongoose.model("ShortenedURL", shortenedURLSchema);
 module.exports = ShortenedURL;
 
-/*const testUrlShortener = new ShortenedURL({
+/*
+const testUrlShortener = new ShortenedURL({
   customName: "untalented guy",
   shortUrl: `https://github.com/wetgr`,
   originalUrl: `https://github.com/mongodb-university/atlas_starter_nodejs`,

@@ -1,61 +1,50 @@
-// const ShortenedURL = require("./../models/shortener.model");
-// const nanoid = require("nanoid");
-// const { check } = require("express-validator");
+const { customAlphabet } = require('nanoid');
+const ShortenedURL = require('../models/shortener.model');
+
+// Create a custom nanoid generator for generating short URLs
+const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 5);
 
 exports.createUrls = async (req, res) => {
-  return res.status(200).json({
-    message: 'Url shortened successfully'
-  });
-  /*//to validate url
-  const validateURL = check("url")
-    .notEmpty()
-    .withMessage("URL is required")
-    .isURL()
-    .withMessage("Invalid URL");
-
-  // Check if the URL already exists in the database
-  const existingURL = await ShortenedURL.findOne({ originalUrl: url });
-
-  if (existingURL) {
-    return res.status(200).json({
-      message: "Short URL already exists",
-      data: {
-        shortUrl: existingURL.shortUrl,
-      },
-    });
-  }*/
-  /*
+  const { url, customName } = req.body;
   try {
-    const newShortenedURL = await ShortenedURL.create(req.body);
+    const existingUrl = await ShortenedURL.findOne({ originalUrl: url });
+    if (existingUrl) {
+      return res.json({
+        message: 'Short url already exist',
+        data: { shortUrl: existingUrl.shortUrl }
+      });
+    }
 
-    res.status(201).json({
-      status: "success",
+    let shortUrl = customName || nanoid();
+    // If customName has spaces, replace them with dashes
+    if (customName && customName.includes(' ')) {
+      shortUrl = customName.replace(/ /g, '-');
+    }
+
+    // Check if the short URL already exists
+    const existingShortUrl = await ShortenedURL.findOne({ shortUrl });
+
+    if (existingShortUrl) {
+      return res.status(400).json({ message: 'Custom name already in use' });
+    }
+
+    // Create a new URL entry
+    await new ShortenedURL({
+      customName,
+      shorturl: `https://shortit/${shortUrl}`,
+      originalUrl: url
+    }).save();
+
+    return res.json({
+      message: 'URL shortened successfully',
       data: {
-        ShortenedURL: newShortenedURL,
-      },
+        shortUrl: `https://shortit/${shortUrl}`
+      }
     });
-  } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err,
-    });
-  }*/
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
 };
 
-exports.getUrls = async (req, res) => {
-  /*  try {
-    const allurl = await ShortenedURL.find();
-
-    res.status(200).json({
-      status: "success",
-      data: {
-        allurl,
-      },
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: "fail",
-      message: err,
-    });
-  }*/
-};
+// exports.getUrls = async (req, res) => {}
