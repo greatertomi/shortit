@@ -1,27 +1,28 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const shortenedURLSchema = new mongoose.Schema({
+  _id: mongoose.Schema.Types.ObjectId,
   customName: {
     type: String,
     unique: true,
-    sparse: true,
+    sparse: true
   },
   shortUrl: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
   originalUrl: {
     type: String,
-    required: true,
+    required: true
   },
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
 });
 
-const ShortenedURL = mongoose.model("ShortenedURL", shortenedURLSchema);
+const ShortenedURL = mongoose.model('ShortenedURL', shortenedURLSchema);
 module.exports = ShortenedURL;
 
 /*
