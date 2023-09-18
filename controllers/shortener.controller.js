@@ -5,12 +5,13 @@ const ShortenedURL = require('../models/shortener.model');
 const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 5);
 
 exports.createUrls = async (req, res) => {
-  const { url, customName } = req.body;
+  const { originalUrl, customName } = req.body;
   try {
-    const existingUrl = await ShortenedURL.findOne({ originalUrl: url });
+    const existingUrl = await ShortenedURL.findOne({ originalUrl });
+
     if (existingUrl) {
       return res.json({
-        message: 'Short url already exist',
+        message: 'Original url already exist',
         data: { shortUrl: existingUrl.shortUrl }
       });
     }
@@ -29,11 +30,13 @@ exports.createUrls = async (req, res) => {
     }
 
     // Create a new URL entry
-    await new ShortenedURL({
+    const shortenedUrl = new ShortenedURL({
       customName,
-      shorturl: `https://shortit/${shortUrl}`,
-      originalUrl: url
-    }).save();
+      shortUrl: `https://shortit/${shortUrl}`,
+      originalUrl
+    });
+
+    await shortenedUrl.save();
 
     return res.json({
       message: 'URL shortened successfully',
