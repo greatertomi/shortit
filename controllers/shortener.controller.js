@@ -47,4 +47,18 @@ exports.createUrls = async (req, res) => {
   }
 };
 
-// exports.getUrls = async (req, res) => {}
+exports.getUrls = async (req, res) => {
+  try {
+    const getAllUrls = await ShortenedURL.find({});
+
+    // if there are no url in the database return emepty array
+    if (!getAllUrls || getAllUrls.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    return res.status(200).json(getAllUrls);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'internal server error' });
+  }
+};

@@ -5,7 +5,7 @@ const { validate } = require('../middleware/validate');
 
 const router = Router();
 
-// router.get('/urls', getUrls);
+router.get('/urls', getUrls);
 
 router.post('/urls', urlValidatorRules, validate, createUrls);
 
