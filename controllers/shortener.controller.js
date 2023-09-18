@@ -1,6 +1,6 @@
 const { customAlphabet } = require('nanoid');
-// const { ObjectId } = require('mongoose').Types;
-const { default: mongoose } = require('mongoose');
+const { ObjectId } = require('mongoose').Types;
+// const { default: mongoose } = require('mongoose');
 const ShortenedURL = require('../models/shortener.model');
 
 // Create a custom nanoid generator for generating short URLs
@@ -73,7 +73,7 @@ exports.getSingleUrl = async (req, res) => {
     const { id } = req.params;
     const objectids = id.trim();
     // Check if the provided ID is a valid MongoDB ObjectId
-    if (!mongoose.Types.ObjectId.isValid(objectids)) {
+    if (!ObjectId.isValid(objectids)) {
       return res.status(400).json({ error: 'invalid id format' });
     }
     // Query the database to find the URL by ID
