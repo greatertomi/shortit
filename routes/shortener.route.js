@@ -6,7 +6,7 @@ const {
   editurl,
   deleteUrl
 } = require('../controllers/shortener.controller');
-const { urlValidatorRules } = require('../middleware/urlValidator');
+const { urlValidatorRules, updateUrlValidatorRules } = require('../middleware/urlValidator');
 const { validate } = require('../middleware/validate');
 
 const router = Router();
@@ -17,7 +17,7 @@ router.get('/urls/:id', getSingleUrl);
 
 router.post('/urls', urlValidatorRules, validate, createUrls);
 
-router.put('/urls/:id', urlValidatorRules, validate, editurl);
+router.put('/urls/:id', updateUrlValidatorRules, validate, editurl);
 
 router.delete('/urls/:id', deleteUrl);
 
