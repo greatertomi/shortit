@@ -52,6 +52,43 @@ exports.createUrls = async (req, res) => {
   }
 };
 
+exports.editurl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const objectid = id.trim();
+    const { originalUrl, customName } = req.body;
+
+    // Check if the provided ID is a valid MongoDB ObjectId
+    if (!ObjectId.isValid(objectid)) {
+      return res.status(400).json({ error: 'Invalid id format' });
+    }
+    // Query the database to find the URL by ID
+    const updateurl = await ShortenedURL.findOne({ _id: objectid });
+
+    // If the URL with the given ID is not found, return an error
+    if (!updateurl) {
+      return res.status(404).json({ error: 'URL not found' });
+    }
+
+    // Update the URL if originalUrl is provided
+    const updateUrl = await ShortenedURL.findByIdAndUpdate(objectid, originalUrl, { new: true });
+    if (originalUrl) {
+      updateurl.originalUrl = originalUrl;
+      await updateurl.save();
+
+      return res.json({
+        message: 'URL updated successfully',
+        data: {
+          originalUrl
+        }
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 exports.getUrls = async (req, res) => {
   try {
     const getAllUrls = await ShortenedURL.find({});
@@ -91,8 +128,33 @@ exports.getSingleUrl = async (req, res) => {
     return res.status(500).json({ error: 'internal server error' });
   }
 };
-// The error message you're encountering, "CastError: Cast to ObjectId failed for value
-// "6505fa741109c97645aea3a1\n"(type string) at path "_id" for model "ShortenedURL","
-// indicates that there's an issue with the format of the _id value you're
-// trying to use as an ObjectId. It appears that there's a newline character
-// (\n) at the end of the id value. thats why i used trim string method
+
+exports.deleteUrl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const objectId = id.trim();
+
+    // Check if the provided ID is a valid MongoDB ObjectId
+    if (!ObjectId.isValid(objectId)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
+
+    // Query the database to find the URL by ID
+    const originalUrlFind = await ShortenedURL.findById(objectId);
+
+    if (!originalUrlFind) {
+      return res.status(404).json({ error: 'Original URL not found' });
+    }
+
+    // Remove the document from the database
+    await ShortenedURL.findByIdAndDelete(objectId);
+
+    return res.status(200).json({
+      message: 'URL deleted successfully',
+      data: null
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
