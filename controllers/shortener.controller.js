@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 const { customAlphabet } = require('nanoid');
 const { ObjectId } = require('mongoose').Types;
 // const { default: mongoose } = require('mongoose');
@@ -62,6 +63,7 @@ exports.editurl = async (req, res) => {
     if (!ObjectId.isValid(objectid)) {
       return res.status(400).json({ error: 'Invalid id format' });
     }
+
     // Query the database to find the URL by ID
     const updateurl = await ShortenedURL.findOne({ _id: objectid });
 
@@ -71,18 +73,42 @@ exports.editurl = async (req, res) => {
     }
 
     // Update the URL if originalUrl is provided
-    const updateUrl = await ShortenedURL.findByIdAndUpdate(objectid, originalUrl, { new: true });
     if (originalUrl) {
-      updateurl.originalUrl = originalUrl;
-      await updateurl.save();
-
-      return res.json({
-        message: 'URL updated successfully',
-        data: {
-          originalUrl
-        }
-      });
+      await ShortenedURL.findByIdAndUpdate(objectid, { originalUrl }, { new: true });
     }
+
+    // Handle customName
+    if (customName) {
+      let formattedCustomName = customName;
+
+      // If customName has spaces, replace them with dashes
+      if (customName.includes(' ')) {
+        formattedCustomName = customName.replace(/ /g, '-');
+      }
+
+      // Check if the custom name already exists
+      const customNameExists = await ShortenedURL.findOne({
+        customName: formattedCustomName
+      });
+
+      if (customNameExists && customNameExists._id.toString() !== objectid) {
+        return res.status(400).json({ error: 'Custom name already exists' });
+      }
+
+      // Update the customName and shortUrl
+      updateurl.customName = formattedCustomName;
+      updateurl.shortUrl = `https://shortit/${formattedCustomName}`;
+      await updateurl.save();
+    }
+
+    return res.json({
+      message: 'URL updated successfully',
+      data: {
+        originalUrl: updateurl.originalUrl,
+        customName: updateurl.customName,
+        shortUrl: updateurl.shortUrl
+      }
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal server error' });
